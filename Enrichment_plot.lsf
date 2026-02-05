@@ -1,0 +1,179 @@
+#BSUB -W 240:00
+#BSUB -o ./Enrich.out
+#BSUB -e ./Enrich.err
+#BSUB -cwd .
+#BSUB -q long 
+#BSUB -n 20 
+#BSUB -M 100
+#BSUB -R rusage[mem=100]
+##BSUB -B
+##BSUB -N
+##BSUB -u ssatpati@mdanderson.org
+#BSUB -J Enrich
+## explanation of arguments above:
+## -W run-time (wall clock) in hour:min  (required)
+## -o use this or output (stdout) will be sent via email!
+## -e use this or errors (stderr) will be sent via email!
+## -cwd set the current working directory.
+## -q queue name (required) 
+## -n number of processors required (28=entire node)
+## -M memory limit in GB (required). 
+## -R memory reserved in GB (default/minimum is 1GB).
+## -B send email to the user when the job begins (optional).
+## -N send email to the user when the job ends (optional).
+## -u send email to the specified address (required if -B and -N are used).
+##    It is recommended to always include your MD Anderson email address.
+## -J arbitrary job name, letters, dashes, underscores only - no spaces!
+##
+## Memory is specified as GB
+##
+## This script requests a wallclock of 1 hour, 12 CPUs, and 17G of memory, in the short queue
+
+## To submit:  bsub < example.lsf
+
+## All commands below should be valid linux commands
+
+module load deeptools
+eval "$(/risapps/rhel8/miniforge3/24.5.0-0/bin/conda shell.bash hook)"
+conda activate deeptools-3.5.4
+
+
+#Options for --refPointLabel:
+#You can set this to any string that will appear on the plot. It does not affect the analysis itself—just how the reference point is labeled visually. Here are some examples of what you can use:
+
+#Common examples:
+#"TSS" – Transcription Start Site
+
+#"TES" – Transcription End Site
+
+#"Center" – Midpoint of a feature
+
+#"Peak start" – Start of a ChIP-seq peak
+
+#"Enhancer" – If your reference is an enhancer site
+
+#"Motif center" – If your regions are centered on a DNA motif
+
+#"Cut site" – For Cas9 or ATAC-seq cut sites
+
+#"Custom point" – If you're just labeling a general anchor
+
+
+#PanChIP_H3K27ac_S2subtractedsubtracted.bw
+#computeMatrix reference-point -S ../../Input_subtracted_bw/PanChIP_H3K27ac_S2subtractedsubtracted.bw -R  PanChIP_H3K27ac_S2.out_peaks.narrow.bed --referencePoint center -a 10000 -b 10000 -out PanChIP_H3K27ac_S2.tab.gz --missingDataAsZero --skipZeros
+
+#plotHeatmap -m PanChIP_H3K27ac_S2.tab.gz -out PanChIP_H3K27ac_S2.png --heatmapHeight 20  --refPointLabel center --regionsLabel Peaks --plotTitle 'PanChIP_H3K27ac_S2' --colorMap viridis
+
+#KO-1000nM-5-AZA.bw
+#KO-150nM-NTX-301.bw
+#KO-con.bw
+#R175H-120nM-NTX-301.bw
+#R175H-2000nM-5-AZA.bw
+#R175H-con.bw
+#R248Q-2000nM-5-AZA.bw
+#R248Q-300nM-NTX-301.bw
+#R248Q-con.bw
+#WT-300nM-5-AZA.bw
+#WT-30nM-NTX-301.bw
+#WT-con.bw
+
+
+#regions_results_hyper_KOvsAZA.bed
+#regions_results_hyper_KOvsNTX.bed
+#regions_results_hyper_R175HvsAZA.bed
+#regions_results_hyper_R175HvsNTX.bed
+#regions_results_hyper_R248QvsAZA.bed
+#regions_results_hyper_R248QvsNTX.bed
+#regions_results_hyper_WTvsAZA.bed
+#regions_results_hyper_WTvsNTX.bed
+
+
+#WTvsNTX_AZA
+#computeMatrix reference-point -S ./WT-con.bw ./WT-30nM-NTX-301.bw ./WT-300nM-5-AZA.bw -R regions_results_hyper_WTvsNTX.bed --referencePoint center -a 10000 -b 10000 -out WTvsNTX_regions_in_NTX_AZA.tab.gz --missingDataAsZero --skipZeros
+
+#plotHeatmap -m GATA3-1_H3K27ac_S16.tab.gz -out GATA3-1_H3K27ac_S16.png --heatmapHeight 20  --refPointLabel center --regionsLabel Peaks --plotTitle 'GATA3-1_H3K27ac_S16' --colorMap viridis
+
+#plotProfile -m WTvsNTX_regions_in_NTX_AZA.tab.gz -out WTvsNTX_regions_in_NTX_AZA_profile.png --numPlotsPerRow 2 --plotTitle "WTvsNTX_regions_in_NTX_AZA"
+
+#plotProfile -m WTvsNTX_regions_in_NTX_AZA.tab.gz -out WTvsNTX_regions_in_NTX_AZA_profile_group.png --perGroup --plotTitle "WTvsNTX_regions_in_NTX_AZA"
+
+
+
+#computeMatrix reference-point -S ./WT-con.bw ./WT-30nM-NTX-301.bw ./WT-300nM-5-AZA.bw -R regions_results_hyper_WTvsAZA.bed --referencePoint center -a 10000 -b 10000 -out WTvsAZA_regions_in_NTX_AZA.tab.gz --missingDataAsZero --skipZeros
+
+#plotHeatmap -m GATA3-1_H3K27ac_S16.tab.gz -out GATA3-1_H3K27ac_S16.png --heatmapHeight 20  --refPointLabel center --regionsLabel Peaks --plotTitle 'GATA3-1_H3K27ac_S16' --colorMap viridis
+
+#plotProfile -m WTvsAZA_regions_in_NTX_AZA.tab.gz -out WTvsAZA_regions_in_NTX_AZA_profile.png --numPlotsPerRow 2 --plotTitle "WTvsAZA_regions_in_NTX_AZA"
+#
+#plotProfile -m WTvsAZA_regions_in_NTX_AZA.tab.gz -out WTvsAZA_regions_in_NTX_AZA_profile_group.png --perGroup --plotTitle "WTvsAZA_regions_in_NTX_AZA"
+#
+#R248QvsNTX_AZA
+
+#computeMatrix reference-point -S ./R248Q-con.bw ./R248Q-300nM-NTX-301.bw ./R248Q-2000nM-5-AZA.bw -R  regions_results_hyper_R248QvsNTX.bed --referencePoint center -a 10000 -b 10000 -out R248QvsNTX_regions_in_NTX_AZA.tab.gz --missingDataAsZero --skipZeros
+
+#plotProfile -m R248QvsNTX_regions_in_NTX_AZA.tab.gz -out R248QvsNTX_regions_in_NTX_AZA_profile_group.png --perGroup --plotTitle "R248QvsNTX_regions_in_NTX_AZA"
+
+
+#computeMatrix reference-point -S ./R248Q-con.bw ./R248Q-300nM-NTX-301.bw ./R248Q-2000nM-5-AZA.bw -R  regions_results_hyper_R248QvsAZA.bed --referencePoint center -a 10000 -b 10000 -out R248QvsAZA_regions_in_NTX_AZA.tab.gz --missingDataAsZero --skipZeros
+
+#plotProfile -m R248QvsAZA_regions_in_NTX_AZA.tab.gz -out R248QvsAZA_regions_in_NTX_AZA_profile_group.png --perGroup --plotTitle "R248QvsAZA_regions_in_NTX_AZA"
+
+
+#R175HvsNTX_AZA
+
+#computeMatrix reference-point -S ./R175H-con.bw ./R175H-120nM-NTX-301.bw ./R175H-2000nM-5-AZA.bw -R regions_results_hyper_R175HvsNTX.bed --referencePoint center -a 10000 -b 10000 -out R175HvsNTX_regions_in_NTX_AZA.tab.gz --missingDataAsZero --skipZeros
+
+#plotProfile -m R175HvsNTX_regions_in_NTX_AZA.tab.gz -out R175HvsNTX_regions_in_NTX_AZA_profile_group.png --perGroup --plotTitle "R175HvsNTX_regions_in_NTX_AZA"
+
+computeMatrix reference-point -S ./R175H-con.bw ./R175H-120nM-NTX-301.bw ./R175H-2000nM-5-AZA.bw -R regions_results_hyper_R175HvsAZA.bed --referencePoint center -a 10000 -b 10000 -out R175HvsAZA_regions_in_NTX_AZA.tab.gz --missingDataAsZero --skipZeros
+plotProfile -m R175HvsAZA_regions_in_NTX_AZA.tab.gz -out R175HvsAZA_regions_in_NTX_AZA_profile_group.png --perGroup --plotTitle "R175HvsAZA_regions_in_NTX_AZA"
+
+
+#KOvsNTX_AZA
+#computeMatrix reference-point -S ./KO-con.bw ./KO-150nM-NTX-301.bw ./KO-1000nM-5-AZA.bw -R regions_results_hyper_KOvsNTX.bed --referencePoint center -a 10000 -b 10000 -out KOvsNTX_regions_in_NTX_AZA.tab.gz --missingDataAsZero --skipZeros
+
+
+#plotProfile -m KOvsNTX_regions_in_NTX_AZA.tab.gz -out KOvsNTX_regions_in_NTX_AZA_profile_group.png --perGroup --plotTitle "KOvsNTX_regions_in_NTX_AZA"
+
+#computeMatrix reference-point -S ./KO-con.bw ./KO-150nM-NTX-301.bw ./KO-1000nM-5-AZA.bw -R regions_results_hyper_KOvsAZA.bed --referencePoint center -a 10000 -b 10000 -out KOvsAZA_regions_in_NTX_AZA.tab.gz --missingDataAsZero --skipZeros
+
+
+#plotProfile -m KOvsAZA_regions_in_NTX_AZA.tab.gz -out KOvsAZA_regions_in_NTX_AZA_profile_group.png --perGroup --plotTitle "KOvsAZA_regions_in_NTX_AZA"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
